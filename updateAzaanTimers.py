@@ -6,25 +6,29 @@ import time
 import sys
 import os
 import random
-sys.path.insert(0, '/home/osmc/adhan/crontab')
+import getpass
+
+home = os.path.expanduser("~")
+user = getpass.getuser()
+sys.path.insert(0, home+'/adhan/crontab')
 
 from praytimes import PrayTimes
 PT = PrayTimes() 
 
 from crontab import CronTab
-system_cron = CronTab(user='osmc')
+system_cron = CronTab(user=user)
 
 #Get list of available adhaans
-adhan_list = os.listdir('/home/osmc/adhan/adhans-normal')
+adhan_list = os.listdir(home+'/adhan/adhans-normal')
 
 def generateRandomAdhanPlayCommand(adhan_list):
-	return 'omxplayer -o local /home/osmc/adhan/adhans-normal/%s > /dev/null 2>&1'%random.choice(adhan_list)
+	return 'omxplayer -o local %s/adhan/adhans-normal/%s > /dev/null 2>&1'%(home,random.choice(adhan_list))
 
 now = datetime.datetime.now()
-strPlayFajrAzaanMP3Command = 'omxplayer -o local /home/osmc/adhan/Adhan-fajr.mp3 > /dev/null 2>&1'
-strPlayAzaanMP3Command = 'omxplayer -o local /home/osmc/adhan/Adhan-Makkah.mp3 > /dev/null 2>&1'
-strUpdateCommand = 'python /home/osmc/adhan/updateAzaanTimers.py >> /home/osmc/adhan/adhan.log 2>&1'
-strClearLogsCommand = 'truncate -s 0 /home/osmc/adhan/adhan.log 2>&1'
+strPlayFajrAzaanMP3Command = 'omxplayer -o local %s/adhan/Adhan-fajr.mp3 > /dev/null 2>&1'%home
+strPlayAzaanMP3Command = 'omxplayer -o local %s/adhan/Adhan-Makkah.mp3 > /dev/null 2>&1'%home
+strUpdateCommand = 'python %s/adhan/updateAzaanTimers.py >> %s/adhan/adhan.log 2>&1'%(home,home)
+strClearLogsCommand = 'truncate -s 0 %s/adhan/adhan.log 2>&1'%home
 strJobComment = 'rpiAdhanClockJob'
 
 #Set latitude and longitude here
@@ -105,5 +109,5 @@ addUpdateCronJob(system_cron, strUpdateCommand)
 # Clear the logs every month
 addClearLogsCronJob(system_cron,strClearLogsCommand)
 
-system_cron.write_to_user(user='osmc')
+system_cron.write_to_user(user=user)
 print 'Script execution finished at: ' + str(now)
